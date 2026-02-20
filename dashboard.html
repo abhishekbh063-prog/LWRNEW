@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Agricultural Labor Wage Recorder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1>🌾 Agricultural Labor Wage Recorder</h1>
+                    <p>Track and manage farm worker wages efficiently</p>
+                </div>
+                <div class="user-info">
+                    <span id="userGreeting"></span>
+                    <button class="btn btn-logout" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="form-section">
+                <h2>Record New Entry</h2>
+                <form id="wageForm">
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workerName">Worker Name</label>
+                        <input type="text" id="workerName" name="workerName" placeholder="Enter worker name" list="workerNameList" required autocomplete="off">
+                        <datalist id="workerNameList">
+                        </datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskDescription">Task Description</label>
+                        <input type="text" id="taskDescription" name="taskDescription" placeholder="e.g., Harvesting, Planting" list="taskList" required autocomplete="off">
+                        <datalist id="taskList">
+                        </datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hoursWorked">Hours Worked</label>
+                        <input type="number" id="hoursWorked" name="hoursWorked" placeholder="0" step="0.5" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="wageRate">Hourly/Daily Wage Rate (₹)</label>
+                        <input type="number" id="wageRate" name="wageRate" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+
+                    <div class="form-group total-display">
+                        <label>Total Wage</label>
+                        <div class="total-amount" id="totalWage">₹0.00</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span class="btn-text">Submit Entry</span>
+                        <span class="btn-loader" style="display: none;">Submitting...</span>
+                    </button>
+                </form>
+
+                <div id="message" class="message" style="display: none;"></div>
+            </section>
+
+            <section class="dashboard-section">
+                <div class="dashboard-header">
+                    <h2>Wage Records Dashboard</h2>
+                    <div class="header-buttons">
+                        <button class="btn btn-secondary" id="refreshBtn">
+                            <span class="btn-text">Refresh Data</span>
+                            <span class="btn-loader" style="display: none;">Loading...</span>
+                        </button>
+                        <button class="btn btn-info" id="viewWorkerBtn">
+                            <span class="btn-text">👤 View Worker Details</span>
+                        </button>
+                        <button class="btn btn-warning" id="editRecordsBtn">
+                            <span class="btn-text">✏️ Edit Records</span>
+                        </button>
+                        <button class="btn btn-success" id="addWorkerBtn">
+                            <span class="btn-text">➕ Add Worker</span>
+                        </button>
+                        <button class="btn btn-primary" id="manageTasksBtn">
+                            <span class="btn-text">📋 Manage Tasks</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="wageTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Worker Name</th>
+                                <th>Task</th>
+                                <th>Hours</th>
+                                <th>Rate (₹)</th>
+                                <th>Total (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="6" class="loading">Loading data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Agricultural Labor Wage Recorder &copy; 2026</p>
+        </footer>
+    </div>
+
+    <!-- Edit Records Slide Panel -->
+    <div id="editSlidePanel" class="slide-panel">
+        <div class="slide-panel-content">
+            <div class="slide-panel-header">
+                <h2>✏️ Edit Wage Records</h2>
+                <button class="close-btn" id="closeEditPanelBtn">&times;</button>
+            </div>
+
+            <div class="slide-panel-body">
+                <div class="table-container">
+                    <table id="editTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Worker</th>
+                                <th>Task</th>
+                                <th>Hours</th>
+                                <th>Rate (₹)</th>
+                                <th>Total (₹)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editTableBody">
+                            <tr>
+                                <td colspan="7" class="loading">Loading records...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="editFormSection" class="edit-form-section" style="display: none;">
+                    <h3>Edit Record</h3>
+                    <form id="editForm">
+                        <div class="form-group">
+                            <label for="editDate">Date</label>
+                            <input type="date" id="editDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editWorkerName">Worker Name</label>
+                            <input type="text" id="editWorkerName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editTaskDescription">Task Description</label>
+                            <input type="text" id="editTaskDescription" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editHoursWorked">Hours Worked</label>
+                            <input type="number" id="editHoursWorked" step="0.5" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editWageRate">Wage Rate (₹)</label>
+                            <input type="number" id="editWageRate" step="0.01" min="0" required>
+                        </div>
+
+                        <div class="form-group total-display">
+                            <label>Total Wage</label>
+                            <div class="total-amount" id="editTotalWage">₹0.00</div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Update Record</button>
+                            <button type="button" class="btn btn-danger" id="deleteRecordBtn">Delete Record</button>
+                            <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Worker Details Slide Panel -->
+    <div id="workerSlidePanel" class="slide-panel">
+        <div class="slide-panel-content">
+            <div class="slide-panel-header">
+                <h2>👤 Worker Earnings Details</h2>
+                <button class="close-btn" id="closePanelBtn">&times;</button>
+            </div>
+
+            <div class="slide-panel-body">
+                <div class="worker-search">
+                    <label for="workerSelect">Select Worker:</label>
+                    <select id="workerSelect" class="worker-select">
+                        <option value="">-- Select a worker --</option>
+                    </select>
+                </div>
+
+                <div id="workerStats" class="worker-stats" style="display: none;">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Earnings</div>
+                        <div class="stat-value" id="totalEarnings">₹0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Hours</div>
+                        <div class="stat-value" id="totalHours">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Days Worked</div>
+                        <div class="stat-value" id="totalDays">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Average Rate</div>
+                        <div class="stat-value" id="avgRate">₹0.00</div>
+                    </div>
+                </div>
+
+                <div id="workerRecords" class="worker-records" style="display: none;">
+                    <h3>Work History</h3>
+                    <div class="table-container">
+                        <table id="workerTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Task</th>
+                                    <th>Hours</th>
+                                    <th>Rate (₹)</th>
+                                    <th>Total (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workerTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Tasks Slide Panel -->
+    <div id="tasksSlidePanel" class="slide-panel">
+        <div class="slide-panel-content">
+            <div class="slide-panel-header">
+                <h2>📋 Manage Tasks</h2>
+                <button class="close-btn" id="closeTasksPanelBtn">&times;</button>
+            </div>
+
+            <div class="slide-panel-body">
+                <div class="add-task-section">
+                    <h3>Add New Task</h3>
+                    <div class="form-group">
+                        <input type="text" id="newTaskInput" placeholder="Enter task name (e.g., Harvesting)" class="task-input">
+                        <button class="btn btn-primary" id="addTaskBtn">Add Task</button>
+                    </div>
+                </div>
+
+                <div class="tasks-list-section">
+                    <h3>Existing Tasks</h3>
+                    <div id="tasksList" class="tasks-list">
+                        <p class="loading">Loading tasks...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
